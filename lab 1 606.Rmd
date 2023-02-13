@@ -1,0 +1,101 @@
+---
+title: "Lab 1: Intro to R"
+author: "Yina Qiao"
+date: "2023-02-02"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+
+```{R view data}
+arbuthnot
+```
+
+```{r summary}
+glimpse(arbuthnot)
+```
+
+```{r}
+arbuthnot$boys
+```
+### Exercise 1
+
+```{r view-girls-counts}
+arbuthnot$girls
+```
+
+
+### Exercise 2
+
+Insert any text here.
+
+```{r}
+ggplot(data = arbuthnot, aes(x = year, y = girls)) + 
+  geom_point()
+```
+#### the plot above shown there is an increase in the number of girls being baptized from 1629 to 1710
+
+### Exercise 3
+
+
+```{r }
+
+arbuthnot<-arbuthnot %>%
+  mutate(total=boys+girls)
+arbuthnot<-arbuthnot %>%
+  mutate(boys_to_girls_ratio=boys/total)
+arbuthnot<-arbuthnot %>%
+  mutate(boy_ratio=boys/total)
+ggplot(data=arbuthnot,aes(x=year,y=boy_ratio))+geom_line()
+
+```
+#### it looks like propotions of boys baptized are dropping gradually overtime.
+
+### Exercise 4
+
+
+```{r}
+data('present', package='openintro')
+glimpse(present)
+```
+
+
+### Exercise 5
+
+
+
+```{r }
+present<-present %>%
+  mutate(total=boys+girls)
+head(present)
+head(arbuthnot)
+
+```
+#### The values in present dataset are much bigger than arbuthnot by 3 orders of magnitude
+
+### Exercise 6
+
+
+```{r }
+present<-present %>%
+  mutate(total=boys+girls)
+present<-present %>%
+  mutate(boys_to_girls_ratio=boys/girls)
+present<-present %>%
+  mutate(boys_ratio=boys/total)
+ggplot(data = present, aes(x=year,y=boys_ratio))+geom_line()
+```
+#### the boy_ratio is decreasing over time for the present data, different from Arbuthnot's observation.
+
+### Exercise 7
+
+
+```{r }
+present %>%
+  arrange(desc(total))
+```
+
