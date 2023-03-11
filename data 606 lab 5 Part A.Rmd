@@ -1,0 +1,235 @@
+---
+title: "DATA606 lab 5 Part A"
+author: "Yina Qiao"
+date: "03/11/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+In this lab, you will investigate the ways in which the statistics from a random sample of data can serve as point estimates for population parameters. We’re interested in formulating a sampling distribution of our estimate in order to learn about the properties of the estimate, such as its distribution.
+
+Setting a seed: We will take some random samples and build sampling distributions in this lab, which means you should set a seed at the start of your lab. If this concept is new to you, review the lab on probability.
+
+## Libraries
+
+```{r}
+set.seed(199)
+library(tidyverse)
+library(openintro)
+library(infer)
+```
+## Exervise 1
+**Describe the distribution of responses in this sample. How does it compare to the distribution of responses in the population. Hint: Although the sample_n function takes a random sample of observations (i.e. rows) from the dataset, you can still refer to the variables in the dataset with the same names. Code you presented earlier for visualizing and summarizing the population data will still be useful for the sample, however be careful to not label your proportion p since you’re now calculating a sample statistic, not a population parameters. You can customize the label of the statistics to indicate that it comes from the sample.**
+```{r}
+global_monitor <- tibble(
+  scientist_work = c(rep("Benefits", 80000), rep("Doesn't benefit", 20000))
+)
+```
+
+```{r}
+samp1 <- global_monitor %>%
+  sample_n(50)
+```
+
+```{r}
+ggplot(samp1, aes(x = scientist_work)) +
+  geom_bar() +
+  labs(
+    x = "", y = "",
+    title = "A smaller pop  sample of the Question:"
+  ) +
+  coord_flip() 
+```
+
+```{r}
+samp1 %>%
+  count(scientist_work) %>%
+  mutate(samp_le = n /sum(n))
+```
+
+
+The distribution of responses in this sample is rather skewed toward people who believe that the work scientists does benefits the people.Compared to the larger data of global_monitor I say the sample proportion turns out to be a pretty good estimate of the true population proportion
+
+## Exervise 2
+**Would you expect the sample proportion to match the sample proportion of another student’s sample? Why, or why not? If the answer is no, would you expect the proportions to be somewhat different or very different? Ask a student team to confirm your answer.**
+```{r}
+samp1 %>%
+  count(scientist_work) %>%
+  mutate(p_hat = n /sum(n))
+```
+
+I don’t expect the sample proportion to match the sample proportion of another’s student sample since because the sample is truly random and there could be an opportunity where a student can have more “benefits” in their table compared to other students.
+
+## Exervise 3
+**Take a second sample, also of size 50, and call it samp2. How does the sample proportion of samp2 compare with that of samp1? Suppose we took two more samples, one of size 100 and one of size 1000. Which would you think would provide a more accurate estimate of the population proportion? **
+```{r}
+samp2 <- global_monitor %>%
+  sample_n(50) 
+
+samp2 %>%
+  count(scientist_work) %>%
+  mutate(p_hat_ = n /sum(n))
+```
+
+
+The sample proportion of samp2 is pretty smiliar to samp1 where there are more benefits than doesn’t benefits. In this sample there are a bit more doesn’t benefits than in samp1.I think a size of 1000 would provide a more accurate measurement since we are counting more people and distribution would align more with the data.
+
+
+## Exervise 4
+**How many elements are there in sample_props50? Describe the sampling distribution, and be sure to specifically note its center. Make sure to include a plot of the distribution in your answer.**
+```{r}
+sample_props50 <- global_monitor %>%
+                    rep_sample_n(size = 50, reps = 15000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Doesn't benefit")
+```
+
+```{r}
+ggplot(data = sample_props50, aes(x = p_hat)) +
+  geom_histogram(binwidth = 0.02) +
+  labs(
+    x = "p_hat (Doesn't benefit)",
+    title = "Sampling distribution of p_hat",
+    subtitle = "Sample size = 50, Number of samples = 15000"
+  )
+```
+
+According to the histogram above, approx 2000 elements in the graph. The sampling distribution is symmetric with no skew there is a prominent center at 0.2 or 20%.
+
+## Exervise 5
+**To make sure you understand how sampling distributions are built, and exactly what the rep_sample_n function does, try modifying the code to create a sampling distribution of 25 sample proportions from samples of size 10, and put them in a data frame named sample_props_small. Print the output. How many observations are there in this object called sample_props_small? What does each observation represent?**
+
+```{r}
+sample_props_small <- global_monitor %>%
+                    rep_sample_n(size = 10, reps = 25, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Doesn't benefit")
+
+sample_props_small
+```
+
+There are 25 observation in sample_props_small, each observation represents a proportion of response in each sample that believes that scientists doesn’t benefit them
+
+## Exervise 6
+
+**Use the app below to create sampling distributions of proportions of Doesn’t benefit from samples of size 10, 50, and 100. Use 5,000 simulations. What does each observation in the sampling distribution represent? How does the mean, standard error, and shape of the sampling distribution change as the sample size increases? How (if at all) do these values change if you increase the number of simulations? (You do not need to include plots in your answer.)**
+
+```{r}
+## samples of size 10 of 5000 simulations
+set.seed(1)
+sample_props_small1 <- global_monitor %>%
+                    rep_sample_n(size = 10, reps = 5000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Doesn't benefit")
+
+sample_props_small1
+```
+
+```{r}
+set.seed(2)
+## samples of size 50 of 5000 simulations
+sample_props_small2 <- global_monitor %>%
+                    rep_sample_n(size = 50, reps = 5000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Doesn't benefit")
+
+sample_props_small2
+```
+
+```{r}
+## samples of size 100 of 5000 simulations
+set.seed(3)
+sample_props_small3 <- global_monitor %>%
+                    rep_sample_n(size = 100, reps = 5000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Doesn't benefit")
+
+sample_props_small3
+```
+
+I set a seed for each individual simulation since the values were constantly changing, each observation represents each a proportion of people in each sample that believes that scientists doesn’t benefit them personally. Acoording to the data when the sample size of the sampling distribution increases they seem to converge closer around the true population proportion of around 0.26 and the standard error is smaller compared to the sample size of 10. So the bigger the sample the more accurate our data becomes.
+
+## Exervise 7
+**Take a sample of size 15 from the population and calculate the proportion of people in this sample who think the work scientists do enhances their lives. Using this sample, what is your best point estimate of the population proportion of people who think the work scientists do enchances their lives? **
+
+```{r}
+set.seed(4)
+samp3 <- global_monitor %>%
+  sample_n(15)
+
+samp3 %>%
+  count(scientist_work) %>%
+  mutate(sam = n/sum(n))
+```
+According to the sample, over 93% of people think that the work scientists does benefit them everyday. My best point estimate of the population proportion would be that the true proportion would be around 80 to 85%
+
+## Exervise 8
+**Since you have access to the population, simulate the sampling distribution of proportion of those who think the work scientists do enchances their lives for samples of size 15 by taking 2000 samples from the population of size 15 and computing 2000 sample proportions. Store these proportions in as sample_props15. Plot the data, then describe the shape of this sampling distribution. Based on this sampling distribution, what would you guess the true proportion of those who think the work scientists do enchances their lives to be? Finally, calculate and report the population proportion.**
+
+```{r}
+sample_props15 <- global_monitor %>%
+                    rep_sample_n(size = 15, reps = 2000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Benefits")
+
+sample_props15
+```
+
+```{r}
+ggplot(data = sample_props15, aes(x = p_hat)) +
+  geom_histogram(binwidth = 0.02) +
+  labs(
+    x = "p_hat (Benefits)",
+    title = "Sampling distribution of population proportion",
+    subtitle = "Sample size = 15, Number of samples = 2000"
+  )
+```
+
+```{r}
+mean(sample_props15$p_hat)
+```
+According to the average of p_hat about 80% of the population truly believe that scientists do enhance their everyday lives.
+
+## Exervise 9
+
+**Change your sample size from 15 to 150, then compute the sampling distribution using the same method as above, and store these proportions in a new object called sample_props150. Describe the shape of this sampling distribution and compare it to the sampling distribution for a sample size of 15. Based on this sampling distribution, what would you guess to be the true proportion of those who think the work scientists do enchances their lives?**
+```{r}
+sample_props150 <- global_monitor %>%
+                    rep_sample_n(size = 150, reps = 2000, replace = TRUE) %>%
+                    count(scientist_work) %>%
+                    mutate(p_hat = n /sum(n)) %>%
+                    filter(scientist_work == "Benefits") 
+sample_props150
+```
+
+```{r}
+ggplot(data = sample_props150, aes(x = p_hat)) +
+  geom_histogram(binwidth = 0.02) +
+  labs(
+    x = "p_hat (Benefits)",
+    title = "Sampling distribution of population proportion",
+    subtitle = "Sample size = 150, Number of samples = 2000"
+  )
+```
+
+```{r}
+mean(sample_props150$p_hat)
+```
+The data looks symmetrical and there are no skews like the graph in exercise 8 and calculating the mean to find proportion population we can see that it is around 80% again.
+
+
+## Exervise 10
+**Of the sampling distributions from 2 and 3, which has a smaller spread? If you’re concerned with making estimates that are more often close to the true value, would you prefer a sampling distribution with a large or small spread?**
+
+Looking at the chart I would say that chart 2 has a smaller spread because it would be easier to work with smaller samples and that smaller samples in general would gives us a more accurate representation of the population proportion

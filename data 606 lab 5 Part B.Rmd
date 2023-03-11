@@ -1,0 +1,161 @@
+---
+title: "DATA606 lab 5 Part B"
+author: "Yina Qiao"
+date: "03/11/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+In this lab, we will explore and visualize the data using the tidyverse suite of packages, and perform statistical inference using infer.
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(openintro)
+library(infer)
+```
+
+```{r}
+us_adults <- tibble(
+  climate_change_affects = c(rep("Yes", 62000), rep("No", 38000)))
+```
+
+```{r}
+us_adults %>%
+  count(climate_change_affects) %>%
+  mutate(p = n /sum(n))
+```
+
+```{r}
+n <- 60
+samp <- us_adults %>%
+  sample_n(size = n) 
+```
+
+```{r}
+samp %>%
+  specify(response = climate_change_affects, success = "Yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+```
+
+## Exervise 1
+**What percent of the adults in your sample think climate change affects their local community? Hint: Just like we did with the population, we can calculate the proportion of those in this sample who think climate change affects their local community.**
+```{r}
+set.seed(9)
+samp %>%
+  count(climate_change_affects) %>%
+  mutate(p=n/sum(n))
+```
+
+The percent of adult who think climate changes affects their local community in my sample size is 65% agrees while 35% disagrees.
+
+## Exervise 2
+**Would you expect another student’s sample proportion to be identical to yours? Would you expect it to be similar? Why or why not?**
+
+I expect the sample size of my classmates to be smiliar since out of that random sample 62% within that sample agree with it.
+
+## Exervise 3
+**In the interpretation above, we used the phrase “95% confident”. What does “95% confidence” mean? **
+I am 95% confident that the true population mean fall within the confidence interval.
+
+
+## Exervise 4
+**Does your confidence interval capture the true population proportion of US adults who think climate change affects their local community? If you are working on this lab in a classroom, does your neighbor’s interval capture this value?**
+```{r}
+set.seed(9)
+samp %>%
+  count(climate_change_affects) %>%
+  mutate(p=n/sum(n))
+```
+
+```{r}
+samp %>%
+  specify(response = climate_change_affects, success = "Yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+```
+
+
+My Confidence Interval is between .533 and .767 It does capture the true population proportion since we claimed that 95% confident that the true mean lies between these two values and since we know the true population proportion is 62% we can see that is within the confidence interval.
+
+
+## Exervise 5
+**Each student should have gotten a slightly different confidence interval. What proportion of those intervals would you expect to capture the true population mean? Why?**
+
+Since each student has gotten slightly different confidence interval. We expect the proportion of these intervals to lie somewhere before and after 62%
+
+## Exervise 6
+
+**Given a sample size of 60, 1000 bootstrap samples for each interval, and 50 confidence intervals constructed (the default values for the above app), what proportion of your confidence intervals include the true population proportion? Is this proportion exactly equal to the confidence level? If not, explain why. Make sure to include your plot in your answer.**
+
+According to my chart 95% of my confidence interval include the true population proportion.Yes it does because looking at the plot I can see that most of the confidence intervals calculated are all within range of the true population proportion.
+
+## Exervise 7
+**Choose a different confidence level than 95%. Would you expect a confidence interval at this level to me wider or narrower than the confidence interval you calculated at the 95% confidence level? Explain your reasoning. **
+
+I believe it would be narrower since we are uncertain of where the true population proportion lies between the confidence intervals.. thus we have a higher chance of not capturing the value within the bounds
+
+## Exervise 8
+**Using code from the infer package and data from the one sample you have (samp), find a confidence interval for the proportion of US Adults who think climate change is affecting their local community with a confidence level of your choosing (other than 95%) and interpret it.**
+```{r}
+set.seed(2)
+samp %>%
+  count(climate_change_affects) %>%
+  mutate(p=n/sum(n))
+```
+
+```{r}
+samp %>%
+  specify(response = climate_change_affects, success = "Yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.90)
+```
+
+We can be 90% confident that the true population mean is within range between .56 and .76 and that this indicates that people believe that climate change is affecting their local community.
+
+## Exervise 9
+
+**Using the app, calculate 50 confidence intervals at the confidence level you chose in the previous question, and plot all intervals on one plot, and calculate the proportion of intervals that include the true population proportion. How does this percentage compare to the confidence level selected for the intervals?**
+
+I calculated everything is the same the sample size is 60 and the re sampling is 1000 and I made the confidence Interval 90%. Looking at the data I can see that out of the 50 intervals constructed only 3 of them were out of range. So the proportion of intervals that include the true population proportion is: 47/50 or approximately 94%.This proportion is pretty close to the confidence level we constructed.
+
+## Exervise 10
+**Lastly, try one more (different) confidence level. First, state how you expect the width of this interval to compare to previous ones you calculated. Then, calculate the bounds of the interval using the infer package and data from samp and interpret it. Finally, use the app to generate many intervals and calculate the proportion of intervals that are capture the true population proportion.**
+```{r}
+set.seed(1)
+samp %>%
+  count(climate_change_affects) %>%
+  mutate(p=n/sum(n))
+```
+
+```{r}
+samp %>%
+  specify(response = climate_change_affects, success = "Yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.85)
+```
+
+I'll compute a 85% confidence interval, this interval will be thinner than the previous confidence interval.  85% confident that the true population proportion of people who believes that climate change is affecting their community is within .58 and .75. Using the app I merely changed the confidence interval to 85% the proportion of intervals were 38/50 was the true population within range which is 76%.
+
+## Exercise 11
+**Using the app, experiment with different sample sizes and comment on how the widths of intervals change as sample size changes (increases and decreases).**
+
+I experimented with samples sizes of 70,80 and 100 and upon calculating different intervals I found that the proportion were more or less consistent. The bigger the sample sizes changes the less width the confidence intervals and the smaller the sample size the bigger the width of the intervals.
+
+
+## Exercise 12
+**Finally, given a sample size (say, 60), how does the width of the interval change as you increase the number of bootstrap samples. Hint: Does changing the number of bootstap samples affect the standard error?**
+
+
+The width of the interval grows tighter as we increase the bootstrap samples since the standard error grows smaller when we increase the number of bootstamp samples.
